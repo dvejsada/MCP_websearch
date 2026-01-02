@@ -1,6 +1,8 @@
 """FastMCP Server with tools for MCP Search."""
 
+import asyncio
 import logging
+from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastmcp import FastMCP
@@ -10,7 +12,7 @@ from starlette.responses import PlainTextResponse
 
 from config import get_config
 from middleware import BearerAuthMiddleware, RequestLoggingMiddleware
-from search import google_search, extract_page_content
+from search import google_search, extract_page_content, SerperClient
 
 # Load configuration
 config = get_config()
@@ -20,6 +22,26 @@ logging.basicConfig(
     level=getattr(logging, config.LOG_LEVEL.upper(), logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
+
+logger = logging.getLogger("mcp_search")
+
+
+@asynccontextmanager
+async def lifespan(app):
+    """Application lifespan handler for startup and shutdown."""
+    # Startup
+    yield
+    # Shutdown - close the shared HTTP client with timeout
+    try:
+        await asyncio.wait_for(SerperClient.close(), timeout=5.0)
+    except asyncio.TimeoutError:
+        logger.warning("Timeout while closing HTTP client")
+    except asyncio.CancelledError:
+        # Gracefully handle cancellation during shutdown
+        pass
+    except Exception as e:
+        logger.warning(f"Error closing HTTP client: {e}")
+
 
 # Initialize FastMCP server with optimized settings
 mcp = FastMCP(
@@ -32,6 +54,8 @@ mcp = FastMCP(
     on_duplicate_prompts=config.ON_DUPLICATE_PROMPTS,
     # Disable FastMCP metadata for cleaner responses
     include_fastmcp_meta=config.INCLUDE_FASTMCP_META,
+    # Lifespan handler for proper cleanup
+    lifespan=lifespan,
 )
 
 # Add middleware (order matters: auth first, then logging)

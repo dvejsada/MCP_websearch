@@ -14,6 +14,47 @@ class SerperAPIError(Exception):
         super().__init__(self.message)
 
 
+class SerperClient:
+    """
+    Singleton HTTP client for Serper.dev API with connection pooling.
+
+    Uses a shared AsyncClient instance to enable:
+    - Connection pooling and reuse
+    - HTTP/2 multiplexing
+    - Reduced connection overhead
+    """
+
+    _instance: httpx.AsyncClient | None = None
+
+    @classmethod
+    def get_client(cls) -> httpx.AsyncClient:
+        """Get or create the shared AsyncClient instance."""
+        if cls._instance is None or cls._instance.is_closed:
+            cls._instance = httpx.AsyncClient(
+                http2=True,
+                timeout=httpx.Timeout(60.0, connect=10.0),
+                limits=httpx.Limits(
+                    max_connections=100,
+                    max_keepalive_connections=20,
+                    keepalive_expiry=30.0,
+                ),
+            )
+        return cls._instance
+
+    @classmethod
+    async def close(cls) -> None:
+        """Close the shared client. Call this on application shutdown."""
+        if cls._instance is not None:
+            try:
+                if not cls._instance.is_closed:
+                    await cls._instance.aclose()
+            except Exception:
+                # Ignore errors during shutdown
+                pass
+            finally:
+                cls._instance = None
+
+
 async def google_search(
     query: str,
     country: str | None = None,
@@ -73,22 +114,22 @@ async def google_search(
         "Content-Type": "application/json",
     }
 
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(
-                "https://google.serper.dev/search",
-                json=payload,
-                headers=headers,
-                timeout=30.0,
-            )
-            response.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            raise SerperAPIError(
-                f"Serper API request failed: {e.response.text}",
-                status_code=e.response.status_code,
-            )
-        except httpx.RequestError as e:
-            raise SerperAPIError(f"Serper API connection error: {str(e)}")
+    client = SerperClient.get_client()
+    try:
+        response = await client.post(
+            "https://google.serper.dev/search",
+            json=payload,
+            headers=headers,
+            timeout=30.0,
+        )
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        raise SerperAPIError(
+            f"Serper API request failed: {e.response.text}",
+            status_code=e.response.status_code,
+        )
+    except httpx.RequestError as e:
+        raise SerperAPIError(f"Serper API connection error: {str(e)}")
 
     data = response.json()
 
@@ -130,22 +171,22 @@ async def extract_page_content(url: str) -> str:
         "Content-Type": "application/json",
     }
 
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(
-                "https://scrape.serper.dev/",
-                json=payload,
-                headers=headers,
-                timeout=60.0,
-            )
-            response.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            raise SerperAPIError(
-                f"Serper Scrape API request failed: {e.response.text}",
-                status_code=e.response.status_code,
-            )
-        except httpx.RequestError as e:
-            raise SerperAPIError(f"Serper Scrape API connection error: {str(e)}")
+    client = SerperClient.get_client()
+    try:
+        response = await client.post(
+            "https://scrape.serper.dev/",
+            json=payload,
+            headers=headers,
+            timeout=60.0,
+        )
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        raise SerperAPIError(
+            f"Serper Scrape API request failed: {e.response.text}",
+            status_code=e.response.status_code,
+        )
+    except httpx.RequestError as e:
+        raise SerperAPIError(f"Serper Scrape API connection error: {str(e)}")
 
     data = response.json()
 
