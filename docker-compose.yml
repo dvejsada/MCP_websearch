@@ -1,0 +1,16 @@
+services:
+  websearch-mcp:
+    image: georgx22/websearch_mcp:latest
+    container_name: websearch-mcp
+    env_file:
+      - .env
+    ports:
+      - "${MCP_PORT:-8000}:${MCP_PORT:-8000}"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${MCP_PORT:-8000}/health"]
+      interval: 120s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
