@@ -30,8 +30,8 @@ RUN useradd --create-home --shell /bin/bash appuser
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy application code
-COPY --chown=appuser:appuser main.py .
+# Copy application code (respects .dockerignore)
+COPY --chown=appuser:appuser . .
 
 # Switch to non-root user
 USER appuser
