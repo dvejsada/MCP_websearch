@@ -144,6 +144,84 @@ async def google_search(
     return "\n\n".join(lines)
 
 
+async def google_search_raw(
+    query: str,
+    country: str | None = None,
+    language: str | None = None,
+    location: str | None = None,
+    time_period: str | None = None,
+    page: int | None = 1,
+) -> dict:
+    """
+    Perform a Google search using Serper.dev API and return raw results.
+
+    Args:
+        query: The search query string.
+        country: Optional country code for localized results (e.g., "us", "cz").
+        language: Optional language code for results (e.g., "en", "cs").
+        location: Optional geographic location (e.g., "Prague, Czech Republic").
+        time_period: Optional time filter (e.g., "qdr:h", "qdr:d", "qdr:w", "qdr:m", "qdr:y").
+        page: Page number for pagination (starts at 1).
+
+    Returns:
+        Raw API response as dictionary.
+
+    Raises:
+        SerperAPIError: If the API request fails.
+    """
+    config = get_config()
+
+    if not config.SERPER_API_KEY:
+        raise SerperAPIError("SERPER_API_KEY is not configured")
+
+    # Apply defaults for None values
+    page = page if page is not None else 1
+
+    # Build request payload
+    payload: dict = {
+        "q": query,
+    }
+
+    if country:
+        payload["gl"] = country.lower()
+
+    if language:
+        payload["hl"] = language.lower()
+
+    if location:
+        payload["location"] = location
+
+    if time_period:
+        payload["tbs"] = time_period
+
+    if page > 1:
+        payload["page"] = page
+
+    headers = {
+        "X-API-KEY": config.SERPER_API_KEY,
+        "Content-Type": "application/json",
+    }
+
+    client = SerperClient.get_client()
+    try:
+        response = await client.post(
+            "https://google.serper.dev/search",
+            json=payload,
+            headers=headers,
+            timeout=30.0,
+        )
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        raise SerperAPIError(
+            f"Serper API request failed: {e.response.text}",
+            status_code=e.response.status_code,
+        )
+    except httpx.RequestError as e:
+        raise SerperAPIError(f"Serper API connection error: {str(e)}")
+
+    return response.json()
+
+
 async def extract_page_content(url: str) -> str:
     """
     Extract content from a webpage using Serper.dev Scrape API.
