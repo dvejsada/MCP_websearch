@@ -155,77 +155,83 @@ async def search_web_ui_tool(
     return [ui_resource]
 
 
-@mcp.tool(
-    name="test_ui_simple",
-    description="Test tool displaying a simple placeholder UI with 600px height.",
-    annotations={
-        "title": "Test UI (Simple)",
-        "readOnlyHint": True,
-        "openWorldHint": True,
-    },
-)
-async def test_ui_simple_tool() -> list[UIResource]:
-    """Display a simple placeholder UI for testing purposes."""
-    html_content = """
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { overflow: hidden; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-  }
-  .mcp-ui-container {
-    min-height: 600px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .card {
-    text-align: center;
-    padding: 40px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 16px;
-    backdrop-filter: blur(10px);
-    color: #fff;
-  }
-  .icon { font-size: 64px; margin-bottom: 20px; }
-  h1 { font-size: 28px; margin-bottom: 12px; }
-  p { font-size: 16px; opacity: 0.9; }
-</style>
-
-<article class="mcp-ui-container">
-  <div class="card">
-    <div class="icon">🎨</div>
-    <h1>MCP UI Test</h1>
-    <p>Simple placeholder UI (600px height)</p>
-  </div>
-</article>
-
-<script>
-const container = document.querySelector('.mcp-ui-container');
-function postSize() {
-  window.parent.postMessage({
-    type: "ui-size-change",
-    payload: { height: container.scrollHeight, width: container.scrollWidth }
-  }, "*");
-}
-new ResizeObserver(() => postSize()).observe(container);
-postSize();
-</script>
-"""
-
-    ui_resource = create_ui_resource({
-        "uri": "ui://mcp-search/test-simple",
-        "content": {
-            "type": "rawHtml",
-            "htmlString": html_content
-        },
-        "encoding": "text"
-    })
-
-    return [ui_resource]
+# ============================================================================
+# Example: UI Tool Implementation
+# ============================================================================
+# This is a commented-out example showing how to create a tool that returns
+# a visual UI component. Use this as a template for creating your own UI tools.
+#
+# @mcp.tool(
+#     name="test_ui_simple",
+#     description="Test tool displaying a simple placeholder UI with 600px height.",
+#     annotations={
+#         "title": "Test UI (Simple)",
+#         "readOnlyHint": True,
+#         "openWorldHint": True,
+#     },
+# )
+# async def test_ui_simple_tool() -> list[UIResource]:
+#     """Display a simple placeholder UI for testing purposes."""
+#     html_content = """
+# <style>
+#   * { box-sizing: border-box; margin: 0; padding: 0; }
+#   html, body { overflow: hidden; }
+#   body {
+#     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+#     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+#     min-height: 100vh;
+#   }
+#   .mcp-ui-container {
+#     min-height: 600px;
+#     display: flex;
+#     align-items: center;
+#     justify-content: center;
+#     padding: 20px;
+#   }
+#   .card {
+#     text-align: center;
+#     padding: 40px;
+#     background: rgba(255,255,255,0.1);
+#     border-radius: 16px;
+#     backdrop-filter: blur(10px);
+#     color: #fff;
+#   }
+#   .icon { font-size: 64px; margin-bottom: 20px; }
+#   h1 { font-size: 28px; margin-bottom: 12px; }
+#   p { font-size: 16px; opacity: 0.9; }
+# </style>
+#
+# <article class="mcp-ui-container">
+#   <div class="card">
+#     <div class="icon">🎨</div>
+#     <h1>MCP UI Test</h1>
+#     <p>Simple placeholder UI (600px height)</p>
+#   </div>
+# </article>
+#
+# <script>
+# const container = document.querySelector('.mcp-ui-container');
+# function postSize() {
+#   window.parent.postMessage({
+#     type: "ui-size-change",
+#     payload: { height: container.scrollHeight, width: container.scrollWidth }
+#   }, "*");
+# }
+# new ResizeObserver(() => postSize()).observe(container);
+# postSize();
+# </script>
+# """
+#
+#     ui_resource = create_ui_resource({
+#         "uri": "ui://mcp-search/test-simple",
+#         "content": {
+#             "type": "rawHtml",
+#             "htmlString": html_content
+#         },
+#         "encoding": "text"
+#     })
+#
+#     return [ui_resource]
 
 if __name__ == "__main__":
     # Run the server with streamable HTTP transport
