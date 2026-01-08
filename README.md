@@ -30,7 +30,7 @@ Search the web using Google.
 
 ### `search_web_ui`
 
-Search the web using Google and display results with a visual UI. Same parameters as `search_web`.
+Search the web using Google and display results with a visual UI. Same parameters as `search_web`. Show interactive buttons to extraxt of open the webpage.
 
 ### `extract_webpage`
 
