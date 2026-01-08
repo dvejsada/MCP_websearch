@@ -75,8 +75,8 @@ new ResizeObserver(p).observe(c);p();
 <a href="{link_escaped}" target="_blank" style="font-size:14px;font-weight:600;color:#1e293b;text-decoration:none;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4">{title}</a>
 <p style="font-size:13px;color:#64748b;flex:1;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin:0;line-height:1.5">{snippet}</p>
 <div style="display:flex;gap:8px;margin-top:12px">
-<button onclick="extractContent('{link_escaped}')" class="btn-primary" style="flex:1;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:#3b82f6;color:#fff">Získat</button>
-<a href="{link_escaped}" target="_blank" class="btn-secondary" style="flex:1;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;text-decoration:none;text-align:center;border:1px solid #e2e8f0;background:#fff;color:#64748b">Otevřít</a>
+<button onclick="extractContent('{link_escaped}')" class="btn-primary" style="flex:1;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:#3b82f6;color:#fff">Extract</button>
+<a href="{link_escaped}" target="_blank" class="btn-secondary" style="flex:1;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;text-decoration:none;text-align:center;border:1px solid #e2e8f0;background:#fff;color:#64748b">Open</a>
 </div>
 </div>""")
 
