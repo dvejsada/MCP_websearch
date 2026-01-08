@@ -42,6 +42,7 @@ class BearerAuthMiddleware(Middleware):
         auth_header = self._get_auth_header()
 
         if not auth_header:
+            logger.warning(f"✗ Authentication failed for {context.method}: Missing Authorization header")
             raise McpError(
                 ErrorData(
                     code=-32001,
@@ -51,6 +52,7 @@ class BearerAuthMiddleware(Middleware):
 
         # Validate Bearer token format
         if not auth_header.startswith("Bearer "):
+            logger.warning(f"✗ Authentication failed for {context.method}: Invalid Authorization header format")
             raise McpError(
                 ErrorData(
                     code=-32001,
@@ -61,6 +63,7 @@ class BearerAuthMiddleware(Middleware):
         # Extract and validate token
         token = auth_header[7:]  # Remove "Bearer " prefix
         if token != self.api_key:
+            logger.warning(f"✗ Authentication failed for {context.method}: Invalid API key")
             raise McpError(
                 ErrorData(
                     code=-32001,
@@ -68,6 +71,7 @@ class BearerAuthMiddleware(Middleware):
                 )
             )
 
+        logger.debug(f"✓ Authentication successful for {context.method}")
         return await call_next(context)
 
     def _get_auth_header(self) -> Optional[str]:
