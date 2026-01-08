@@ -45,54 +45,29 @@ Extract the main text content from a webpage URL.
 
 ### Prerequisites
 
-- Python 3.14+
 - [Serper.dev API Key](https://serper.dev/) (free tier available)
-
-### Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-# Required
-SERPER_API_KEY=your_serper_api_key
-
-# Optional - Server Configuration
-MCP_TRANSPORT=http          # Transport type: http, sse, stdio
-MCP_HOST=0.0.0.0            # Host to bind to
-MCP_PORT=8000               # Port to listen on
-MCP_API_KEY=your_api_key    # Bearer token for authentication
-
-# Optional - Environment
-ENVIRONMENT=development     # development or production
-
-# Optional - Logging
-FASTMCP_LOG_LEVEL=INFO      # DEBUG, INFO, WARNING, ERROR
-```
 
 ### Docker
 
 #### Using Docker Compose (Recommended)
 
-1. Create `.env` file with your configuration
+1. Copy `docker-compose.yaml` to your target directory.
 
-2. Run:
+2. Create `.env` file with your configuration, see `.env.example` for reference.
+
+3. Run:
    ```bash
    docker-compose up -d
    ```
 
-#### Using Docker directly
+#### Using Docker directly (pre-built image)
 
 ```bash
-docker build -t mcp-search .
-docker run -d -p 8000:8000 --env-file .env mcp-search
-```
-
-### Docker Hub
-
-Pre-built image available:
-
-```bash
+# Pull the pre-built image from Docker Hub
 docker pull georgx22/websearch_mcp:latest
+
+# Run the container (exposes port 8000)
+docker run -d -p 8000:8000 --env-file .env georgx22/websearch_mcp:latest
 ```
 
 ## Health Check
@@ -113,6 +88,3 @@ When `MCP_API_KEY` is set, all requests must include the Bearer token:
 Authorization: Bearer your_api_key
 ```
 
-## License
-
-MIT
