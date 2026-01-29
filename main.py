@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastmcp import FastMCP
+from mcp.types import TextContent
 from mcp_ui_server.core import UIResource
 from pydantic import Field
 from starlette.requests import Request
@@ -14,7 +15,6 @@ from starlette.responses import PlainTextResponse
 from config import get_config
 from middleware import BearerAuthMiddleware, RequestLoggingMiddleware
 from search import google_search, google_search_raw, extract_page_content, SerperClient, create_search_results_ui
-from mcp_ui_server import create_ui_resource
 
 # Load configuration
 config = get_config()
@@ -49,7 +49,7 @@ async def lifespan(app):
 mcp = FastMCP(
     name="mcp-search",
     version="0.1.0",
-    instructions="MCP Search Server providing search tools.",
+    instructions="MCP Search Server providing search tools with UI.",
     # Performance and behavior settings
     on_duplicate_tools=config.ON_DUPLICATE_TOOLS,
     on_duplicate_resources=config.ON_DUPLICATE_RESOURCES,
@@ -135,8 +135,8 @@ async def search_web_ui_tool(
     location: Annotated[str | None, Field(description="Geographic location for results (e.g., 'Prague, Czech Republic', 'New York, United States')")] = None,
     time_period: Annotated[str | None, Field(description="Time filter: 'qdr:h' (past hour), 'qdr:d' (past day), 'qdr:w' (past week), 'qdr:m' (past month), 'qdr:y' (past year)")] = None,
     page: Annotated[int | None, Field(description="Page number for pagination (starts at 1)", ge=1)] = 1,
-) -> list[UIResource]:
-    """Search the web using Google and return results with visual UI."""
+) -> list[UIResource | TextContent]:
+    """Search the web using Google and return results with visual UI and text content."""
     # Get raw search results
     data = await google_search_raw(
         query=query,
@@ -152,7 +152,22 @@ async def search_web_ui_tool(
     # Create UI resource using helper from search package
     ui_resource = create_search_results_ui(query, results)
 
-    return [ui_resource]
+    # Format text content for client awareness
+    text_lines = [f"Search results for: {query}\n"]
+    for i, item in enumerate(results, 1):
+        title = item.get("title", "No title")
+        link = item.get("link", "")
+        snippet = item.get("snippet", "")
+        text_lines.append(f"{i}. {title}\n   URL: {link}\n   {snippet}\n")
+
+    text_content = TextContent(
+        type="text",
+        text="\n".join(text_lines)
+    )
+
+    # Return both UI resource and text content
+    # The UI will be displayed visually, and the text makes the client aware of results
+    return [ui_resource, text_content]
 
 
 # ============================================================================
