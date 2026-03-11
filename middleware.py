@@ -77,7 +77,8 @@ class BearerAuthMiddleware(Middleware):
     def _get_auth_header(self) -> Optional[str]:
         """Extract Authorization header from HTTP request."""
         try:
-            headers = get_http_headers()
+            headers = get_http_headers(include_all=True)
+            print(headers)
             if headers:
                 return headers.get("authorization") or headers.get("Authorization")
         except Exception:

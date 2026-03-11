@@ -50,12 +50,6 @@ mcp = FastMCP(
     name="mcp-search",
     version="0.1.0",
     instructions="MCP Search Server providing search tools.",
-    # Performance and behavior settings
-    on_duplicate_tools=config.ON_DUPLICATE_TOOLS,
-    on_duplicate_resources=config.ON_DUPLICATE_RESOURCES,
-    on_duplicate_prompts=config.ON_DUPLICATE_PROMPTS,
-    # Disable FastMCP metadata for cleaner responses
-    include_fastmcp_meta=config.INCLUDE_FASTMCP_META,
     # Lifespan handler for proper cleanup
     lifespan=lifespan,
 )
