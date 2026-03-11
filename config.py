@@ -52,6 +52,9 @@ class Config:
     # Serper.dev API
     SERPER_API_KEY: str = os.getenv("SERPER_API_KEY", "")
 
+    # Content extraction limits
+    MAX_CONTENT_LENGTH: int = int(os.getenv("MAX_CONTENT_LENGTH", "20000"))
+
     @classmethod
     def is_production(cls) -> bool:
         """Check if running in production environment."""

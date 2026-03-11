@@ -274,6 +274,14 @@ async def extract_page_content(url: str) -> str:
 
     # Format as human-readable text
     if title:
-        return f"{title}\n\n{content}"
-    return content
+        result = f"{title}\n\n{content}"
+    else:
+        result = content
+
+    # Truncate content if it exceeds the configured maximum length
+    max_length = config.MAX_CONTENT_LENGTH
+    if max_length > 0 and len(result) > max_length:
+        result = result[:max_length] + "\n\n[Content truncated - extracted text exceeded the maximum allowed length]"
+
+    return result
 
